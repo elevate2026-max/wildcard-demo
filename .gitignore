@@ -1,0 +1,5 @@
+node_modules
+.next
+.sfx-wav
+next-env.d.ts
+*.tsbuildinfo
