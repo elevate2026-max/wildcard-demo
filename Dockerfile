@@ -1,5 +1,5 @@
 # Marley's Wildcard demo — static-ish Next.js app, no secrets, no database.
-ARG NODE_IMAGE=node:22-bookworm-slim
+ARG NODE_IMAGE=mirror.gcr.io/library/node:22-bookworm-slim
 
 FROM ${NODE_IMAGE} AS deps
 WORKDIR /app
