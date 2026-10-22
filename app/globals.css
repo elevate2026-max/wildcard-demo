@@ -417,8 +417,10 @@ h2 {
   font-weight: 600;
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
 }
-.choice:not(:disabled):hover {
-  border-color: var(--copper);
+@media (hover: hover) {
+  .choice:not(:disabled):hover {
+    border-color: var(--copper);
+  }
 }
 .choice:not(:disabled):active {
   transform: scale(0.98);
@@ -723,6 +725,22 @@ h2 {
   }
 }
 
+/* Short phones (iPhone SE class): 2x2 answers so all four fit above the fold. */
+@media (max-width: 820px) and (max-height: 720px) {
+  .show .choices {
+    grid-template-columns: 1fr 1fr;
+  }
+  .show .choice {
+    font-size: 15px;
+    gap: 8px;
+    padding: 8px;
+  }
+  .show .choice-letter {
+    width: 26px;
+    height: 26px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -749,9 +767,22 @@ h2 {
     padding: 10px;
     gap: 10px;
   }
+  .host-strip {
+    gap: 6px;
+  }
+  .host-chip {
+    padding: 4px 8px 4px 4px;
+    gap: 8px;
+  }
   .host-chip img {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
+  }
+  .host-chip strong {
+    font-size: 15px;
+  }
+  .host-chip span {
+    font-size: 10px;
   }
   .score-rows {
     display: grid;
@@ -759,36 +790,66 @@ h2 {
     gap: 6px;
   }
   .score-row {
-    flex-wrap: wrap;
-    justify-content: center;
-    text-align: center;
-    gap: 4px 6px;
-    padding: 8px 6px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "tok name" "pts status";
+    gap: 2px 6px;
+    padding: 6px 8px;
+    align-items: center;
   }
   .score-row .token {
-    width: 26px;
-    height: 26px;
-    font-size: 13px;
+    grid-area: tok;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
   }
-  .score-name {
-    flex: none;
-    font-size: 15px;
+  .score-row .score-name {
+    grid-area: name;
+    font-size: 14px;
   }
-  .score-pts {
-    width: 100%;
+  .score-row .score-pts {
+    grid-area: pts;
+    grid-column: 1 / 2;
     min-width: 0;
-    text-align: center;
-    font-size: 20px;
+    text-align: left;
+    font-size: 18px;
   }
-  .score-status {
-    width: 100%;
-    min-height: 18px;
+  .score-row .score-status {
+    grid-area: status;
+    text-align: right;
+    font-size: 12px;
+  }
+  .qcard {
+    padding: 14px;
+  }
+  .qcard-host {
+    width: 40px;
+    height: 40px;
+  }
+  .clock {
+    font-size: 28px;
+  }
+  .timer {
+    margin: 10px 0 12px;
+  }
+  .qcard-question {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .choices {
+    gap: 8px;
+  }
+  .qcard-foot {
+    font-size: 14px;
+    margin-top: 10px;
   }
   .choices {
     grid-template-columns: 1fr;
   }
   .choice {
-    min-height: 56px;
+    min-height: 52px;
+    padding: 8px 12px;
+    font-size: 17px;
   }
   .mute-label,
   .topbar-segment {
