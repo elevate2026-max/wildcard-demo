@@ -18,8 +18,17 @@ describe("host script", () => {
   const voiceRows = rows.filter((r) => r.cells.length === 2);
   const sfxRows = rows.filter((r) => r.cells.length === 1);
 
-  it("has the 52 voice lines (30 base + 22 addendum) and 10 music/SFX slots", () => {
-    expect(voiceRows).toHaveLength(52);
+  // v3 lists its five commentary lines as bullets: - `slot` (Speaker): "Line"
+  const v3Rows = [
+    ...readFileSync(path.join(root, "docs/wildcard-demo-update-v3.md"), "utf8").matchAll(
+      /^- `([a-z0-9_]+)` \((Marley|Aiden)\): "(.+)"$/gm,
+    ),
+  ].map((m) => ({ slot: m[1], cells: [m[2], m[3]] }));
+  voiceRows.push(...v3Rows);
+
+  it("has the 57 voice lines (30 base + 22 addendum + 5 v3) and 10 music/SFX slots", () => {
+    expect(v3Rows).toHaveLength(5);
+    expect(voiceRows).toHaveLength(57);
     expect(sfxRows).toHaveLength(10);
   });
 

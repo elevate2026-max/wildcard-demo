@@ -35,12 +35,11 @@ const ART = {
   marley: "/art/marley/marley-avatar.webp",
   aiden: "/art/aiden/aiden-cohost-avatar.webp",
   aidenSet: "/art/aiden/aiden-wildcard-set.webp",
-  coldOpen: "/art/marley/marley-cold-open.webp",
-  stage: "/art/marley/marley-stage.webp",
-  desk: "/art/marley/marley-desk.webp",
-  hero: "/art/marley/marley-show-hero.webp",
-  reveal: "/art/marley/marley-question-reveal.webp",
-  ceremony: "/art/marley/marley-winner-ceremony.webp",
+  // v3 scenes — the only approved Marley scene art (faceted avatar likeness).
+  host: "/art/scenes/scene-marley-host.webp",
+  board: "/art/scenes/scene-gameboard-duo.webp",
+  desk: "/art/scenes/scene-marley-desk.webp",
+  winnerDuo: "/art/scenes/scene-winner-duo.webp",
   logo: "/art/brand/wildcard-logo-gold.png",
 };
 
@@ -59,6 +58,7 @@ type Scene = {
   spotlight?: BotId;
   hosts?: boolean;
   standings?: boolean;
+  full?: boolean; // full-width beat: the scoreboard steps aside
   title?: string;
   kicker?: string;
 };
@@ -336,7 +336,7 @@ export default function Game() {
 
         if (rematch) {
           setSegment("Rematch");
-          setScene({ image: ART.stage });
+          setScene({ image: ART.host });
           await say("rematch_line");
           setCelebrate("Aiden");
           await say("aiden_again");
@@ -344,16 +344,16 @@ export default function Game() {
         } else {
           // Intro segment.
           setSegment("Tonight on the Wildcard");
-          setScene({ image: ART.coldOpen });
+          setScene({ image: ART.host });
           engine.sfx("sfx_theme_sting");
           await wait(2200);
           const introScenes: Partial<Record<VoiceSlot, Scene>> = {
-            intro_welcome: { image: ART.coldOpen },
-            intro_aiden_setup: { image: ART.stage },
+            intro_welcome: { image: ART.host },
+            intro_aiden_setup: { image: ART.host },
             aiden_enter: { image: ART.aidenSet, title: "Aiden", kicker: "Co-host" },
             intro_aiden_intro: { image: ART.aidenSet, title: "Aiden", kicker: "Marley's new co-host" },
             aiden_hello: { image: ART.aiden, title: "Aiden", kicker: "Co-host" },
-            intro_rules: { image: ART.desk, title: "How we play", kicker: "Fast + right = more points" },
+            intro_rules: { image: ART.host, title: "How we play", kicker: "Fast + right = more points" },
             intro_players: { lineup: true },
             intro_max: { lineup: true, spotlight: "max" },
             intro_roxy: { lineup: true, spotlight: "roxy" },
@@ -366,15 +366,33 @@ export default function Game() {
             await say(slot);
             setCelebrate(null);
           }
+
+          // Board reveal (v3): the gameboard look, full-width, before Round 1.
+          setSegment("The Wildcard board");
+          setScene({ image: ART.board, full: true });
+          await say("board_reveal");
+          setCelebrate("Aiden");
+          await say("aiden_board");
+          setCelebrate(null);
         }
+
+        // Commentary-desk cutaway (v3).
+        const deskCutaway = async (slot: VoiceSlot, kicker: string) => {
+          setScene({ image: ART.desk, title: "From the desk", kicker });
+          await say(slot);
+        };
 
         // Round 1.
         setSegment(SEGMENT_TITLE.round1);
-        setScene({ image: ART.stage, title: "Round 1", kicker: `${ROUND_LENGTH} questions · 15 seconds each` });
+        setScene({ image: ART.host, title: "Round 1", kicker: `${ROUND_LENGTH} questions · 15 seconds each` });
         await say("round1_open");
         setScene(null);
         for (let i = 0; i < plan.round1.length; i++) {
           await playQuestion(plan.round1[i], `Round 1 · Question ${i + 1} of ${plan.round1.length}`);
+          if (i === 4) {
+            await deskCutaway("desk_mid1", "Round 1 · halfway");
+            setScene(null);
+          }
         }
 
         // Aiden's Wildcard moment — his segment.
@@ -407,20 +425,24 @@ export default function Game() {
 
         // Round 2.
         setSegment(SEGMENT_TITLE.round2);
-        setScene({ image: ART.hero, title: "Round 2", kicker: "Double points · meaner questions" });
+        setScene({ image: ART.board, title: "Round 2", kicker: "Double points · meaner questions" });
         await say("round2_open");
         setScene(null);
         for (let i = 0; i < plan.round2.length; i++) {
           await playQuestion(plan.round2[i], `Round 2 · Question ${i + 1} of ${plan.round2.length} · Double points`);
+          if (i === 4) {
+            await deskCutaway("desk_mid2", "Round 2 · halfway");
+            setScene(null);
+          }
         }
 
         // Final round.
         setSegment(SEGMENT_TITLE.final);
-        setScene({ image: ART.reveal, title: "Final round", kicker: `One question · ${SEGMENTS.final.base} points · 30 seconds` });
+        setScene({ image: ART.board, title: "Final round", kicker: `One question · ${SEGMENTS.final.base} points · 30 seconds` });
         await say("final_open");
         setScene({ standings: true, title: "Before the final", kicker: `${SEGMENTS.final.base} points on the line` });
         await sayStanding();
-        setScene({ image: ART.reveal, title: "Final round", kicker: `One question · ${SEGMENTS.final.base} points · 30 seconds` });
+        await deskCutaway("desk_final", "Before the final");
         await say("final_spotlight");
         setScene(null);
         await playQuestion(plan.final, `Final round · ${SEGMENTS.final.base} points`);
@@ -486,7 +508,7 @@ export default function Game() {
       )}
 
       {phase === "show" && (
-        <main className="show">
+        <main className={`show ${scene?.full && !live ? "show-full" : ""}`}>
           <section className="stage">
             {live ? (
               <QuestionCard live={live} reveal={reveal} onAnswer={onAnswer} />
@@ -494,7 +516,9 @@ export default function Game() {
               <SceneCard scene={scene} talking={talking} celebrate={celebrate} scores={scores} />
             ) : null}
           </section>
-          <Scoreboard scores={scores} live={live} reveal={reveal} talking={talking} celebrate={celebrate} />
+          {!(scene?.full && !live) && (
+            <Scoreboard scores={scores} live={live} reveal={reveal} talking={talking} celebrate={celebrate} />
+          )}
         </main>
       )}
 
@@ -552,6 +576,7 @@ function TitleScreen({
 }) {
   return (
     <main className="title">
+      <img className="title-scene" src={ART.host} alt="Marley on the Wildcard stage" />
       <img className="title-logo" src={ART.logo} alt="Marley's Wildcard" />
       <div className="title-hosts">
         <figure className="host-card">
@@ -570,7 +595,7 @@ function TitleScreen({
         </figure>
       </div>
       <p className="title-lede">
-        You vs. <b>Max</b> and <b>Roxy</b>. Three rounds, one Wildcard, about 13 minutes. Sound on.
+        You vs. <b>Max</b> and <b>Roxy</b>. Three rounds, one Wildcard, about 14 minutes. Sound on.
       </p>
       <button className="btn-primary" onClick={onPlay} disabled={!loaded.ready}>
         {loaded.ready ? "Play" : `Loading sound… ${loaded.done}/${loaded.total}`}
@@ -666,7 +691,7 @@ function SceneCard({
   return (
     <div className={`scene ${talking ? `talking-${talking.toLowerCase()}` : ""}`}>
       {scene.image && (
-        <div className="scene-frame">
+        <div className={`scene-frame ${scene.image === ART.host ? "scene-frame-portrait" : ""}`}>
           <img src={scene.image} alt="" />
         </div>
       )}
@@ -699,19 +724,25 @@ function QuestionCard({
   const secs = Math.ceil(live.remainingMs / 1000);
   const host = q.segment === "aiden" ? ART.aiden : ART.marley;
   return (
-    <div className={`qcard qcard-${q.segment} ${live.open ? "" : "qcard-readin"}`}>
-      <div className="qcard-head">
-        <img className="qcard-host" src={host} alt={q.segment === "aiden" ? "Aiden asks" : "Marley asks"} />
-        <div>
-          <div className="eyebrow">{live.label}</div>
-          <div className="qcard-cat">{q.category}</div>
+    <div className={`qcard gameboard qcard-${q.segment} ${live.open ? "" : "qcard-readin"}`}>
+      {/* The show's gameboard: question panel on the board, Marley and Aiden flanking it. */}
+      <div className="gb-stage">
+        <img className="gb-scene" src={ART.board} alt="Marley and Aiden at the Wildcard board" />
+        <div className="gb-panel">
+          <div className="qcard-head">
+            <img className="qcard-host" src={host} alt={q.segment === "aiden" ? "Aiden asks" : "Marley asks"} />
+            <div>
+              <div className="eyebrow">{live.label}</div>
+              <div className="qcard-cat">{q.category}</div>
+            </div>
+            <div className={`clock ${secs <= 5 && !reveal ? "clock-hot" : ""}`}>{reveal ? "—" : secs}</div>
+          </div>
+          <div className="timer">
+            <div className="timer-fill" style={{ transform: `scaleX(${reveal ? 0 : frac})` }} />
+          </div>
+          <h2 className="qcard-question">{q.question}</h2>
         </div>
-        <div className={`clock ${secs <= 5 && !reveal ? "clock-hot" : ""}`}>{reveal ? "—" : secs}</div>
       </div>
-      <div className="timer">
-        <div className="timer-fill" style={{ transform: `scaleX(${reveal ? 0 : frac})` }} />
-      </div>
-      <h2 className="qcard-question">{q.question}</h2>
       <div className="choices">
         {q.choices.map((choice, i) => {
           const isCorrect = reveal && i === q.correct;
@@ -852,7 +883,7 @@ function WinnerScreen({
   return (
     <main className="winner">
       <div className="winner-hero">
-        <img src={ART.ceremony} alt="Marley at the winner ceremony" />
+        <img src={ART.winnerDuo} alt="Marley and Aiden celebrating" />
       </div>
       <div className="winner-body">
         <div className="eyebrow">Final standings</div>

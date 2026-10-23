@@ -26,7 +26,7 @@
 
 | Slot | Speaker | Line |
 |---|---|---|
-| `round1_open` | Marley | Round one! Six questions, fifteen seconds each. Speed earns — dawdling costs. Here we go. |
+| `round1_open` | Marley | Round one! Ten questions, fifteen seconds each. Speed earns — dawdling costs. Here we go. |
 | `round2_open` | Marley | Round two! Points are doubled, the questions are meaner. My favorite combination. |
 
 ## Answer reactions (rotate the variants; never the same one twice in a row)

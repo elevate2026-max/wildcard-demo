@@ -1,4 +1,5 @@
-// Host lines, verbatim from docs/wildcard-demo-host-script.md and docs/wildcard-demo-script-addendum-v2.md
+// Host lines, verbatim from docs/wildcard-demo-host-script.md, docs/wildcard-demo-script-addendum-v2.md
+// and docs/wildcard-demo-update-v3.md
 // (final — do not edit the text here without a new script from Marley). tests/script.test.ts checks
 // every line against those files.
 
@@ -20,7 +21,10 @@ export const VOICE = {
   intro_roxy: { speaker: "Marley", text: "And Roxy. Strategy? Vibes. Preparation? Also vibes. And somehow — it works." },
   aiden_roxy: { speaker: "Aiden", text: "She's my favorite. Don't tell Max." },
 
-  round1_open: { speaker: "Marley", text: "Round one! Six questions, fifteen seconds each. Speed earns — dawdling costs. Here we go." },
+  board_reveal: { speaker: "Marley", text: "Behold — the Wildcard board. Twenty questions between you and glory. Aiden, tell them about the board." },
+  aiden_board: { speaker: "Aiden", text: "I helped decorate it. The sparkles were my idea." },
+
+  round1_open: { speaker: "Marley", text: "Round one! Ten questions, fifteen seconds each. Speed earns — dawdling costs. Here we go." },
   round2_open: { speaker: "Marley", text: "Round two! Points are doubled, the questions are meaner. My favorite combination." },
 
   correct_1: { speaker: "Marley", text: "Correct! Somebody did their homework." },
@@ -38,6 +42,10 @@ export const VOICE = {
   wrong_5: { speaker: "Marley", text: "Not it! The answer sends its regards." },
   wrong_6: { speaker: "Marley", text: "Incorrect! We move on, we grow, we forget this happened." },
   timeout_3: { speaker: "Marley", text: "Time's up! Even the clock got nervous on that one." },
+
+  desk_mid1: { speaker: "Marley", text: "Quick check-in from the desk: five down in round one. The board is warm, Max is calculating, and Roxy is still vibing." },
+  desk_mid2: { speaker: "Marley", text: "Desk check: five left in round two. This is where the Wildcard earns its name." },
+  desk_final: { speaker: "Marley", text: "From the desk: one question left, and everything rides on it. No pressure." },
 
   aiden_moment_open: { speaker: "Aiden", text: "My turn! My turn! This one's MY question — and it's worth double!" },
   aiden_moment_close: { speaker: "Aiden", text: "I told you it was a good one!" },
