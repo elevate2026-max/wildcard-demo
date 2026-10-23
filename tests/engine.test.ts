@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   QUESTIONS,
   ROUND_LENGTH,
+  nextStreak,
   pickVariant,
   planBotAnswer,
   planGame,
   rollBots,
   scoreAnswer,
+  standing,
 } from "@/game/engine";
 
 function seeded(seed: number) {
@@ -35,13 +37,13 @@ describe("question bank", () => {
 });
 
 describe("planGame", () => {
-  it("deals 6 + Aiden + 6 + final with no repeats, and keeps answers correct after shuffling", () => {
+  it("deals 10 + Aiden + 10 + final with no repeats, and keeps answers correct after shuffling", () => {
     for (let seed = 1; seed < 200; seed++) {
       const p = planGame(seeded(seed));
       expect(p.round1).toHaveLength(ROUND_LENGTH);
       expect(p.round2).toHaveLength(ROUND_LENGTH);
       const all = [...p.round1, p.aiden, ...p.round2, p.final];
-      expect(new Set(all.map((q) => q.id)).size).toBe(14);
+      expect(new Set(all.map((q) => q.id)).size).toBe(22);
       expect(p.round1.every((q) => q.difficulty === 1)).toBe(true);
       expect(p.round2.every((q) => q.difficulty === 2)).toBe(true);
       expect(p.final.difficulty).toBe(2);
@@ -100,5 +102,27 @@ describe("pickVariant", () => {
       expect(next).not.toBe(last);
       last = next;
     }
+  });
+});
+
+describe("standing", () => {
+  it("is exactly one of ahead / behind / tied against the top bot", () => {
+    expect(standing(500, [400, 100])).toBe("ahead");
+    expect(standing(300, [400, 100])).toBe("behind");
+    expect(standing(400, [400, 100])).toBe("tied");
+    expect(standing(0, [0, 0])).toBe("tied");
+  });
+});
+
+describe("nextStreak", () => {
+  it("hits on the third consecutive correct answer only", () => {
+    const seq = [true, true, true, true, false, true, true, true];
+    let run = 0;
+    const hits = seq.map((c) => {
+      const s = nextStreak(run, c);
+      run = s.run;
+      return s.hit;
+    });
+    expect(hits).toEqual([false, false, true, false, false, false, false, true]);
   });
 });

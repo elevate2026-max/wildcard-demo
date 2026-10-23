@@ -24,7 +24,7 @@ export const SEGMENTS: Record<SegmentKind, { base: number; seconds: number }> = 
   final: { base: 500, seconds: 30 },
 };
 
-export const ROUND_LENGTH = 6;
+export const ROUND_LENGTH = 10;
 
 export type GameQuestion = Question & { segment: SegmentKind };
 
@@ -50,7 +50,7 @@ export function shuffleChoices(q: Question, rng: Rng): Question {
   return { ...q, choices: order.map((i) => q.choices[i]), correct: order.indexOf(q.correct) };
 }
 
-/** Picks the 14 questions for one game: Round 1 easy, Aiden's pick, Round 2 + final harder. */
+/** Picks the 22 questions for one game: Round 1 easy, Aiden's pick, Round 2 + final harder. */
 export function planGame(rng: Rng, bank: Question[] = QUESTIONS): Plan {
   const easy = shuffle(bank.filter((q) => q.difficulty === 1), rng);
   const hard = shuffle(bank.filter((q) => q.difficulty === 2), rng);
@@ -80,8 +80,8 @@ export type BotProfile = { id: BotId; accuracy: [number, number]; speed: number;
 export function rollBots(rng: Rng): Record<BotId, BotProfile> {
   const jitter = (spread: number) => (rng() * 2 - 1) * spread;
   return {
-    // Max: strong and fast.
-    max: { id: "max", accuracy: [0.86 + jitter(0.06), 0.74 + jitter(0.07)], speed: 0.85 + rng() * 0.3, noAnswer: 0 },
+    // Max: strong and fast — but beatable by a sharp player.
+    max: { id: "max", accuracy: [0.78 + jitter(0.06), 0.66 + jitter(0.07)], speed: 0.85 + rng() * 0.3, noAnswer: 0 },
     // Roxy: erratic — lightning guesses or last-second lunges, coin-flip accuracy, the odd blank.
     roxy: { id: "roxy", accuracy: [0.56 + jitter(0.1), 0.44 + jitter(0.1)], speed: 0.8 + rng() * 0.5, noAnswer: 0.06 },
   };
@@ -94,7 +94,7 @@ export function planBotAnswer(profile: BotProfile, q: Question, limitMs: number,
   if (rng() < profile.noAnswer) return { choice: null, atMs: limitMs };
   let seconds: number;
   if (profile.id === "max") {
-    seconds = (1.8 + rng() * 3.6) * profile.speed * (q.difficulty === 2 ? 1.25 : 1);
+    seconds = (2.4 + rng() * 4.2) * profile.speed * (q.difficulty === 2 ? 1.25 : 1);
     if (limitS > 20) seconds += 2 + rng() * 4; // even Max thinks on the final
   } else {
     seconds = rng() < 0.4 ? 0.9 + rng() * 2.2 : (6 + rng() * 8) * profile.speed;
@@ -111,4 +111,16 @@ export function planBotAnswer(profile: BotProfile, q: Question, limitMs: number,
 export function pickVariant<T>(options: readonly T[], last: T | undefined, rng: Rng): T {
   const pool = options.length > 1 ? options.filter((o) => o !== last) : options;
   return pool[Math.floor(rng() * pool.length)];
+}
+
+/** The player's standing against the best bot score: drives ahead_line / behind_line / tied_line. */
+export function standing(you: number, bots: number[]): "ahead" | "behind" | "tied" {
+  const top = Math.max(...bots);
+  return you > top ? "ahead" : you < top ? "behind" : "tied";
+}
+
+/** Consecutive-correct counter; `hit` is true exactly when the run reaches 3 (streak_line). */
+export function nextStreak(run: number, correct: boolean): { run: number; hit: boolean } {
+  const next = correct ? run + 1 : 0;
+  return { run: next, hit: next === 3 };
 }

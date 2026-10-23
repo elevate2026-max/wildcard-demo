@@ -28,21 +28,22 @@ A standalone, playable web demo of **Marley's Wildcard** — the Rovyn Labs live
 - **Aiden** — Marley's named **co-host** (not "an AI co-host"). He appears in the intro by name, gets his own lines (intro segment + a mid-game moment + winner announcement support), and his portrait is on the title screen and scoreboard. If Aiden is an afterthought in your build, the build is wrong.
 - **Two bot contestants** — fixed names: **Max** (strong/fast) and **Roxy** (erratic). Simulated answers with realistic timing so rounds feel alive.
 
-**Flow (~15 minutes):**
+**Flow (~15 minutes — v2, per Claude's measured v1 runtime of ~6–7 min and Donald's call to lengthen with content, not padding):**
 1. **Title screen** — show logo treatment, Marley + Aiden pictured, "Play" button.
-2. **Intro segment** (~1–2 min) — Marley welcomes the audience, introduces co-host Aiden (his scripted intro beats), introduces the contestants.
-3. **Round 1** — 6 timed multiple-choice questions (15s each). Points for a correct answer, scaled by speed. Marley quips on right/wrong; bots answer on their own clocks; running scoreboard after each question.
+2. **Intro segment** (~2 min) — Marley welcomes the audience, introduces co-host Aiden (his scripted intro beats), introduces the contestants (with the v2 per-contestant intro lines).
+3. **Round 1** — 10 timed multiple-choice questions (15s each). Points for a correct answer, scaled by speed. Marley quips on right/wrong; bots answer on their own clocks; running scoreboard after each question.
 4. **Aiden's Wildcard moment** (~1 min) — between rounds, Aiden presents one special question himself, at double value. This is his segment, not a cameo.
-5. **Round 2** — 6 more questions, values doubled, slightly harder.
-6. **Final round** — 1 high-value question, 30s, bigger drama beats.
-7. **Winner screen** — final standings, Marley + Aiden closing lines, "Play again" (reshuffles questions and bot behavior).
+5. **Halftime banter** (~1 min, v2) — Marley + Aiden segment from the v2 addendum, ending with Aiden's second "Lock it in!"
+6. **Round 2** — 10 more questions, values doubled, slightly harder.
+7. **Final round** — 1 high-value question, 30s, bigger drama beats, preceded by the v2 final spotlight + a contextual scoreboard line.
+8. **Winner screen** — final standings, Marley + Aiden closing lines, "Play again" (reshuffles questions and bot behavior).
 
 **Scoring:** correct = base points × speed factor; wrong = 0. Demo scoring is local and simple by design — the real show's server-authoritative clock/scoring rules (Splice/Ledger) do **not** apply here and must not be implied in the UI. Label it plainly as a demo: a small "Demo" badge on the title and winner screens is enough.
 
 ## Content
 
-- **Question bank:** JSON file, minimum **45 questions** (so replays don't repeat the same 14), each: category, question, 4 choices, correct index, difficulty (1–2). Family-friendly, general knowledge, a few automotive and Chicago-flavored ones are welcome. No questions requiring images.
-- **Host script:** SUPPLIED, final, in the starter pack (`docs/wildcard-demo-host-script.md`) — every Marley/Aiden line with its audio slot ID. Do not write or rewrite host dialogue; build to the supplied script.
+- **Question bank:** JSON file, minimum **45 questions** (per-game draw is 22 under the v2 flow; the shipped bank has 59), each: category, question, 4 choices, correct index, difficulty (1–2). Family-friendly, general knowledge, a few automotive and Chicago-flavored ones are welcome. No questions requiring images.
+- **Host script:** SUPPLIED, final, in the starter pack (`docs/wildcard-demo-host-script.md`) — every Marley/Aiden line with its audio slot ID. Do not write or rewrite host dialogue; build to the supplied script. **v2 addendum** (`docs/wildcard-demo-script-addendum-v2.md`) adds 22 more final lines (contestant intros, halftime banter, extra quips, scoreboard/streak lines, final spotlight, rematch) plus text-only bot taunts — same final status.
 
 ## Audio (REQUIRED — the demo does not ship silent)
 
@@ -51,6 +52,15 @@ Sound runs throughout the demo in three layers. The full slot list (voice + musi
 1. **Voices (supplied by Marley):** every scripted line is a pre-rendered clip in its slot (`public/audio/<slot-id>.mp3`), rendered in the locked voices (Marley `avocado_v2:vd2_r82_rep5k_0528_v068_28k_g5k`; Aiden `avocado_v2:qvd_00052`). Never live TTS, never a substitute voice.
 2. **Music & SFX (sourced by Claude, royalty-free):** theme sting, question bed, clock ticks, correct/wrong/timeout stingers, Aiden sting, drumroll, applause, UI clicks — per the slot table in the host script.
 3. **Behavior:** clips play automatically at their moments; a mute toggle is always visible; game flow never blocks waiting on audio. Every voice line also shows as on-screen text (subtitles) — that's accessibility and fallback, **not** a text-only mode.
+
+## Cinematic (v2.1 — Donald's call, Oct 22)
+
+The pack's `video/official-trailer.mp4` is the show's official trailer (10 seconds, with its own audio). Use it as-supplied, unedited:
+
+- **Opening cinematic:** when the player hits **Play** on the title screen, the trailer plays full-screen first, then the game flows into the intro segment. (The Play click is the user interaction browsers require for sound — no autoplay workarounds.)
+- **Skippable:** a visible "Skip" control at all times; skipping (or the trailer ending) goes straight to the intro. Never trap the player.
+- **Replayable:** a "Watch trailer" control on the title screen plays it again on demand.
+- The trailer is the demo's only video asset. Everything else remains supplied art with simple animated states — do not generate or source other video.
 
 ## Tech
 

@@ -147,6 +147,113 @@ h2 {
   font-size: 16px;
 }
 
+.btn-secondary {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ---------- Trailer (full-screen, as supplied; letterboxed, never stretched) ---------- */
+.trailer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.trailer.is-on {
+  display: flex;
+}
+.trailer-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.trailer-skip {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top));
+  right: 16px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 241, 234, 0.4);
+  background: rgba(22, 24, 29, 0.75);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ---------- Halftime / standings scenes ---------- */
+.hosts-scene {
+  padding: 18px 18px 0;
+}
+.hosts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.hosts-row .host-card {
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.hosts-row .host-card.is-talking {
+  border-color: var(--teal);
+}
+.hosts-row .host-card.is-talking img {
+  animation: talk 0.28s ease-in-out infinite alternate;
+}
+.hosts-row .host-card.is-celebrating img {
+  animation: bounce 0.5s ease infinite alternate;
+}
+.standings-scene {
+  padding-bottom: 18px;
+}
+.standings-scene .standings {
+  padding: 0 18px;
+}
+.lineup-card {
+  transition: opacity 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.lineup-card.is-spotlit {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 2px var(--glow);
+}
+.lineup-card.is-dim {
+  opacity: 0.45;
+}
+.qcard-readin .choice {
+  opacity: 0.55;
+}
+
+/* Bot taunts: text-only bubbles at the reveal */
+.score-row {
+  flex-wrap: wrap;
+}
+.taunt {
+  order: 10;
+  flex-basis: 100%;
+  margin-top: 2px;
+  padding: 4px 10px;
+  border-radius: 10px 10px 10px 2px;
+  background: var(--charcoal);
+  font-size: 13px;
+  font-style: italic;
+  animation: rise 0.25s ease;
+}
+.taunt-max {
+  color: var(--teal);
+}
+.taunt-roxy {
+  color: var(--ember);
+}
+
 /* ---------- Title ---------- */
 .title {
   flex: 1;
@@ -792,7 +899,7 @@ h2 {
   .score-row {
     display: grid;
     grid-template-columns: auto 1fr;
-    grid-template-areas: "tok name" "pts status";
+    grid-template-areas: "tok name" "pts status" "taunt taunt";
     gap: 2px 6px;
     padding: 6px 8px;
     align-items: center;
@@ -813,6 +920,11 @@ h2 {
     min-width: 0;
     text-align: left;
     font-size: 18px;
+  }
+  .score-row .taunt {
+    grid-area: taunt;
+    font-size: 11px;
+    padding: 3px 6px;
   }
   .score-row .score-status {
     grid-area: status;

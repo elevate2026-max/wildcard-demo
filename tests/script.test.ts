@@ -1,10 +1,12 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ALL_SLOTS, SFX_SLOTS, VOICE, VOICE_SLOTS } from "@/game/script";
+import { ALL_SLOTS, BOT_TAUNTS, SFX_SLOTS, VOICE, VOICE_SLOTS } from "@/game/script";
 
 const root = path.resolve(__dirname, "..");
-const scriptMd = readFileSync(path.join(root, "docs/wildcard-demo-host-script.md"), "utf8");
+const scriptMd = ["docs/wildcard-demo-host-script.md", "docs/wildcard-demo-script-addendum-v2.md"]
+  .map((f) => readFileSync(path.join(root, f), "utf8"))
+  .join("\n");
 
 // Rows look like: | `slot_id` | Speaker | Line |   (SFX rows have two cells)
 const rows = [...scriptMd.matchAll(/^\|\s*`([a-z0-9_]+)`\s*\|(.*)\|\s*$/gm)].map((m) => ({
@@ -16,8 +18,8 @@ describe("host script", () => {
   const voiceRows = rows.filter((r) => r.cells.length === 2);
   const sfxRows = rows.filter((r) => r.cells.length === 1);
 
-  it("has the 30 voice lines and 10 music/SFX slots", () => {
-    expect(voiceRows).toHaveLength(30);
+  it("has the 52 voice lines (30 base + 22 addendum) and 10 music/SFX slots", () => {
+    expect(voiceRows).toHaveLength(52);
     expect(sfxRows).toHaveLength(10);
   });
 
@@ -33,6 +35,19 @@ describe("host script", () => {
   });
 });
 
+describe("bot taunts", () => {
+  it("are the addendum's text-only lines, verbatim", () => {
+    for (const [bot, label] of [["max", "Max"], ["roxy", "Roxy"]] as const) {
+      for (const kind of ["correct", "wrong"] as const) {
+        const row = scriptMd.match(new RegExp(`\\*\\*${label} \\(${kind}\\):\\*\\* (.+)$`, "m"));
+        expect(row, `${label} ${kind}`).not.toBeNull();
+        const lines = [...row![1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+        expect([...BOT_TAUNTS[bot][kind]]).toEqual(lines);
+      }
+    }
+  });
+});
+
 describe("audio slots", () => {
   it("every slot has a non-empty public/audio/<slot>.mp3", () => {
     for (const slot of ALL_SLOTS) {
@@ -40,6 +55,10 @@ describe("audio slots", () => {
       expect(existsSync(file), file).toBe(true);
       expect(statSync(file).size, file).toBeGreaterThan(1000);
     }
+  });
+
+  it("ships the trailer", () => {
+    expect(statSync(path.join(root, "public/video/official-trailer.mp4")).size).toBeGreaterThan(1_000_000);
   });
 
   it("ships nothing outside the slot list", () => {
