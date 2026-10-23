@@ -570,7 +570,7 @@ function TitleScreen({
         </figure>
       </div>
       <p className="title-lede">
-        You vs. <b>Max</b> and <b>Roxy</b>. Three rounds, one Wildcard, about 7 minutes. Sound on.
+        You vs. <b>Max</b> and <b>Roxy</b>. Three rounds, one Wildcard, about 13 minutes. Sound on.
       </p>
       <button className="btn-primary" onClick={onPlay} disabled={!loaded.ready}>
         {loaded.ready ? "Play" : `Loading sound… ${loaded.done}/${loaded.total}`}
